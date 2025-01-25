@@ -1,4 +1,4 @@
-package org.petrarka.consumer.general.config;
+package org.petrarka.general.config;
 
 import lombok.Getter;
 
