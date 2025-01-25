@@ -1,4 +1,4 @@
-package org.petrarka.consumer.transaction.config;
+package org.petrarka.producer.hashtransactions.config;
 
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -9,17 +9,17 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Конфигурационный класс потребителя кафки по транзакциям
+ * Конфигурационный класс производителя кафки по транзакциям
  */
 @Slf4j
 @Getter
-public class TransactionKafkaConfig extends AbstractKafkaConfig {
+public class HashTransactionsKafkaConfig extends AbstractKafkaConfig {
 
     private static final String FILE_NAME_ALL_PROPERTIES = "application.properties";
-    private static final String FILE_NAME_WITH_KAFKA_PROPERTIES = "TransactionKafka.properties";
-    private static final String TRANSACTION_TOPIC_NAME_VALUE = "transaction.topic.name";
+    private static final String FILE_NAME_WITH_KAFKA_PROPERTIES = "HashTransactionsKafka.properties";
+    private static final String TRANSACTION_TOPIC_NAME_VALUE = "hashtransactions.topic.name";
 
-    public TransactionKafkaConfig() {
+    public HashTransactionsKafkaConfig() {
         ClassLoader loader = Thread.currentThread().getContextClassLoader();
         try (InputStream streamPropertiesKafka = loader.getResourceAsStream(FILE_NAME_WITH_KAFKA_PROPERTIES);
              InputStream streamPropertiesApplication = loader.getResourceAsStream(FILE_NAME_ALL_PROPERTIES)

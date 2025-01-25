@@ -1,8 +1,11 @@
-package org.petrarka.consumer.general;
+package org.petrarka.general;
 
 import lombok.Data;
-import org.petrarka.consumer.general.config.AbstractKafkaConfig;
+import org.petrarka.general.config.AbstractKafkaConfig;
 
+/**
+ * Абстрактный класс потребителя
+ */
 @Data
 public abstract class AbstractConsumer<T extends AbstractKafkaConfig> {
 
