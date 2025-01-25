@@ -1,11 +1,13 @@
-package org.petrarka.service;
+package org.petrarka.consumer.service;
 
 import lombok.experimental.Accessors;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.consumer.*;
 import org.apache.kafka.common.TopicPartition;
-import org.petrarka.consumer.general.AbstractConsumer;
-import org.petrarka.consumer.general.config.AbstractKafkaConfig;
+import org.petrarka.db.HashTransactionsDB;
+import org.petrarka.dto.Transaction;
+import org.petrarka.general.AbstractConsumer;
+import org.petrarka.general.config.AbstractKafkaConfig;
 import org.petrarka.utils.Validator;
 
 import java.time.Duration;
@@ -22,17 +24,17 @@ public class KafkaConsumerService {
     private int counter = 0;
 
     /**
-     * Чтение событий из топика
+     * Чтение событий топика
      *
-     * @param kafkaProducer объект-производитель для отравки в топик
+     * @param kafkaConsumer объект-потребитель событий топика
      */
-    public <P extends AbstractConsumer<?>> void read(P kafkaProducer) {
-        this.pathToFileJsonSchema = kafkaProducer.getPathToFileJsonSchema();
-        read(kafkaProducer.getKafkaConfig());
+    public <P extends AbstractConsumer<?>> void read(P kafkaConsumer) {
+        this.pathToFileJsonSchema = kafkaConsumer.getPathToFileJsonSchema();
+        read(kafkaConsumer.getKafkaConfig());
     }
 
     /**
-     * Чтение событий (синхронно и асинхронно) из топика со смещением
+     * Чтение событий (синхронно и асинхронно) топика со смещением
      *
      * @param kafkaConfig конфигурационный класс потребителя кафки
      */
@@ -58,26 +60,35 @@ public class KafkaConsumerService {
     }
 
     /**
-     * Функция обработки события из топика
+     * Функция обработки события топика
      *
      * @param record получаемое событие
      * @param <O>    получаемый объект
      */
     private <O> void processRecord(ConsumerRecord<String, O> record) {
         {
+            if(Objects.isNull(record.value())){
+                return;
+            }
             Validator.validateJsonSchema(record.value(), this.pathToFileJsonSchema);
             log.info("topic = {}, partition = {}, offset = {}, customer = {}, transaction = {}",
                     record.topic(), record.partition(), record.offset(), record.key(), record.value());
             this.currentOffsets.put(new TopicPartition(record.topic(), record.partition()),
                     new OffsetAndMetadata(record.offset() + 1, "no metadata"));
+
+            if (record.value() instanceof Transaction) {
+                HashTransactionsDB.transactions.add((Transaction) record.value());
+                log.debug("Сохранили в базу транзакцию: {}", record.value().toString());
+            }
+
             log.debug("Чтение выполнено успешно");
         }
     }
 
     /**
-     * Метод передачи функции информирования выполнения получения события из топика
+     * Метод передачи функции информирования выполнения получения события топика
      *
-     * @return Функция информирования выполнения получения события из топика
+     * @return Функция информирования выполнения получения события топика
      */
     private OffsetCommitCallback executeAfterCompleted() {
         return (map, exception) -> {
