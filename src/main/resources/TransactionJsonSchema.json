@@ -1,0 +1,24 @@
+{
+  "description": "Schema for transaction",
+  "type": "object",
+  "properties": {
+    "operationType": {
+      "type": "string",
+      "enum": [
+        "DEBIT",
+        "INVEST",
+        "TRANSFER"
+      ]
+    },
+    "amount": {
+      "type": "number",
+      "minimum": 0
+    },
+    "account": {
+      "type": "string"
+    },
+    "dateOperation": {
+      "type": "string"
+    }
+  }
+}
