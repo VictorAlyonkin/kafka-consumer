@@ -63,8 +63,7 @@ public class SchedulerSendHashTransactions {
      */
     private static void sendHashTransactions() {
         HashTransactions hashTransactions = getHashTransactions();
-        KafkaProducerService<Transaction> kafkaProducerService = new KafkaProducerService<>();
-        kafkaProducerService.sendSync(new HashTransactionsProducer(hashTransactions));
+        KafkaProducerService.sendSync(new HashTransactionsProducer(hashTransactions));
     }
 
     /**

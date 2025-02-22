@@ -2,25 +2,12 @@ package org.petrarka.producer.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.apache.kafka.clients.producer.KafkaProducer;
-import org.apache.kafka.clients.producer.Producer;
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.petrarka.general.AbstractProducer;
 import org.petrarka.general.config.AbstractKafkaConfig;
 
-import java.util.Objects;
-
 @Slf4j
-public class KafkaProducerService<O> {
-
-    private Producer<String, O> producer;
-
-    public KafkaProducerService() {
-
-    }
-
-    public KafkaProducerService(Producer<String, O> producer) {
-        this.producer = producer;
-    }
+public class KafkaProducerService {
 
     /**
      * Синхронная отправка события в кафку
@@ -28,18 +15,10 @@ public class KafkaProducerService<O> {
      * @param object      объект для отправки в топик
      * @param kafkaConfig конфигурационный класс потребителя кафки
      */
-    public <O, C extends AbstractKafkaConfig> void sendSync(O object,
-                                                            C kafkaConfig) {
+    public static <O, C extends AbstractKafkaConfig> void sendSync(O object,
+                                                                   C kafkaConfig) {
         log.info("Запуск процесса отправки события в топик");
-
-        Producer<String, O> producer;
-
-        if (Objects.nonNull(this.producer)) {
-            producer = (Producer<String, O>) this.producer;
-        } else {
-            producer = new KafkaProducer<>(kafkaConfig.getProperties());
-        }
-
+        KafkaProducer<String, O> producer = new KafkaProducer<>(kafkaConfig.getProperties());
         try {
             ProducerRecord<String, O> record = new ProducerRecord<>(kafkaConfig.getTopicName(), object);
             producer.send(record)
@@ -60,7 +39,7 @@ public class KafkaProducerService<O> {
      *
      * @param kafkaProducer объект-производитель для отправки в топик
      */
-    public <P extends AbstractProducer<?>> void sendSync(P kafkaProducer) {
+    public static <P extends AbstractProducer<?>> void sendSync(P kafkaProducer) {
         sendSync(kafkaProducer.getObject(), kafkaProducer.getKafkaConfig());
     }
 }
